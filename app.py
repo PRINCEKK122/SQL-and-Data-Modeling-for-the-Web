@@ -8,8 +8,10 @@ import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import logging
 from logging import Formatter, FileHandler
+from config import *
 from flask_wtf import Form
 from forms import *
 #----------------------------------------------------------------------------#
@@ -18,10 +20,10 @@ from forms import *
 
 app = Flask(__name__)
 moment = Moment(app)
-app.config.from_object('config')
-db = SQLAlchemy(app)
+app.config.from_object("config")
 
-# TODO: connect to a local postgresql database
+db = SQLAlchemy(app)
+migrate = Migrate(app=app, db=db)
 
 #----------------------------------------------------------------------------#
 # Models.

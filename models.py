@@ -1,7 +1,9 @@
 from app import db
+from datetime import datetime
+
 
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+    __tablename__ = "Venue"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
@@ -14,11 +16,14 @@ class Venue(db.Model):
     website_link = db.Column(db.String(120))
     searching_for_talent = db.Column(db.Boolean, default=False, nullable=False)
     description = db.Column(db.String(120))
+    show = db.relationship("Show", backref="shows", lazy="select")
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    def __repr__(self) -> str:
+        return f"id: {self.id} Venue name: {self.name}"
+
 
 class Artist(db.Model):
-    __tablename__ = 'Artist'
+    __tablename__ = "Artist"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -31,5 +36,19 @@ class Artist(db.Model):
     website_link = db.Column(db.String(120))
     searching_for_venue = db.Column(db.Boolean, default=False, nullable=False)
     description = db.Column(db.String(120))
+    shows = db.relationship("Show", backref="shows", lazy="select")
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    def __repr__(self) -> str:
+        return f"id: {self.id} Artist name: {self.name}"
+    
+
+class Show(db.Model):
+    __tablename__ = "Show"
+
+    id = db.Column(db.Integer, primary_key=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey("Artist.id"))
+    venue_id = db.Column(db.Integer, db.ForeignKey("Venue.id"))
+    date_posted = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self) -> str:
+        return f"id: {self.id}, date_posted: {self.date_posted}"

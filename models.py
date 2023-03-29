@@ -14,7 +14,7 @@ class Venue(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     website_link = db.Column(db.String(120))
-    searching_for_talent = db.Column(db.Boolean, default=False, nullable=False)
+    seeking_talent = db.Column(db.Boolean, default=False, nullable=False)
     description = db.Column(db.String(120))
     show = db.relationship("Show", backref="shows", lazy="select")
 
@@ -26,7 +26,7 @@ class Artist(db.Model):
     __tablename__ = "Artist"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String, nullable=False, unique=True)
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
@@ -34,7 +34,7 @@ class Artist(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     website_link = db.Column(db.String(120))
-    searching_for_venue = db.Column(db.Boolean, default=False, nullable=False)
+    seeking_venue = db.Column(db.Boolean, default=False, nullable=False)
     description = db.Column(db.String(120))
     shows = db.relationship("Show", backref="shows", lazy="select")
 
@@ -48,7 +48,7 @@ class Show(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     artist_id = db.Column(db.Integer, db.ForeignKey("Artist.id"))
     venue_id = db.Column(db.Integer, db.ForeignKey("Venue.id"))
-    date_posted = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    start_time = db.Column(db.Date, nullable=False, default=datetime.utcnow)
 
     def __repr__(self) -> str:
-        return f"id: {self.id}, date_posted: {self.date_posted}"
+        return f"id: {self.id}, start_time: {self.start_time}"

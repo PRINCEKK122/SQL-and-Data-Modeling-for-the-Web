@@ -1,6 +1,12 @@
-from app import db
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from datetime import datetime
 
+app = Flask(__name__)
+app.config.from_object("config")
+db = SQLAlchemy(app)
+migrate = Migrate(app=app, db=db)
 
 class Venue(db.Model):
     __tablename__ = "Venue"
@@ -13,10 +19,11 @@ class Venue(db.Model):
     phone = db.Column(db.String(120), nullable=False)
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    genres = db.Column(db.String(120))
     website_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean, default=False, nullable=False)
     description = db.Column(db.String(120))
-    show = db.relationship("Show", backref="shows", lazy="select")
+    shows = db.relationship("Show", backref="venues", lazy="select")
 
     def __repr__(self) -> str:
         return f"id: {self.id} Venue name: {self.name}"
@@ -36,7 +43,7 @@ class Artist(db.Model):
     website_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean, default=False, nullable=False)
     description = db.Column(db.String(120))
-    shows = db.relationship("Show", backref="shows", lazy="select")
+    shows = db.relationship("Show", backref="artists", lazy="select")
 
     def __repr__(self) -> str:
         return f"id: {self.id} Artist name: {self.name}"

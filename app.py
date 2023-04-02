@@ -58,6 +58,7 @@ def index():
 def venues():
     # TODO: replace with real venues data.
     #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
+    # data = db.session.query()
     data = [
         {
             "city": "San Francisco",
@@ -95,14 +96,18 @@ def search_venues():
     # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
     # seach for Hop should return "The Musical Hop".
     # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
+    search_term = request.form["search_term"]
+    
+    results = db.session.query(Venue).filter(Venue.name.ilike(f"%{search_term}%"))
+
     response = {
-        "count": 1,
+        "count": results.count(),
         "data": [
             {
-                "id": 2,
-                "name": "The Dueling Pianos Bar",
+                "id": result.id,
+                "name": result.name,
                 "num_upcoming_shows": 0,
-            }
+            } for result in results
         ],
     }
     return render_template(
@@ -217,9 +222,6 @@ def create_venue_form():
 
 @app.route("/venues/create", methods=["POST"])
 def create_venue_submission():
-    form = VenueForm(request.form)
-    print(form.data)
-    print(form.validate())
     error = False
     # getting all the data from frontend
     name = request.form.get("name")
@@ -235,7 +237,6 @@ def create_venue_submission():
     description = request.form.get("seeking_description")
     
     try:
-        print("before adding to database")
         new_venue = Venue(
             name=name,
             city=city,
@@ -252,20 +253,18 @@ def create_venue_submission():
         db.session.add(new_venue)
         db.session.commit()
     except:
+        error = True
         print(sys.exc_info())
         db.session.rollback()
-        error = True
     finally:
         db.session.close()
 
-    if error:
-        return render_template("forms/new_venue.html")
+        if error:
+            flash(f"An error occured. Venue {request.form['name']} could not be listed.")
+            return render_template("forms/new_venue.html", form=VenueForm())
 
     # on successful db insert, flash success
     flash("Venue " + request.form["name"] + " was successfully listed!")
-    # TODO: on unsuccessful db insert, flash an error instead.
-    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     return render_template("pages/home.html")
 
 

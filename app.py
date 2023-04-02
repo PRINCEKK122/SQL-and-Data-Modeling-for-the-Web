@@ -22,11 +22,6 @@ from models import app, db, Venue, Artist, Show
 moment = Moment(app)
 
 
-#################################################
-##### Creating the database using Flask-Migrate
-################################################
-
-
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
 # ----------------------------------------------------------------------------#
@@ -222,6 +217,9 @@ def create_venue_form():
 
 @app.route("/venues/create", methods=["POST"])
 def create_venue_submission():
+    form = VenueForm(request.form)
+    print(form.data)
+    print(form.validate())
     error = False
     # getting all the data from frontend
     name = request.form.get("name")
@@ -235,9 +233,7 @@ def create_venue_submission():
     website_link = request.form.get("website_link")
     seeking_talent = request.form.get("seeking_talent") == "y"
     description = request.form.get("seeking_description")
-    print(type(seeking_talent))
-    print(type(genres))
-    print(", ".join(genres))
+    
     try:
         print("before adding to database")
         new_venue = Venue(
@@ -246,18 +242,15 @@ def create_venue_submission():
             state=state,
             address=address,
             phone=phone,
-            genres=genres,
+            genres=", ".join(genres),
             facebook_link=facebook_link,
             website_link=website_link,
             image_link=image_link,
             seeking_talent=seeking_talent,
             description=description,
         )
-
-        print(new_venue)
         db.session.add(new_venue)
         db.session.commit()
-        print("Added venue to database")
     except:
         print(sys.exc_info())
         db.session.rollback()
